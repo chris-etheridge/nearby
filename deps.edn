@@ -6,16 +6,15 @@
                                     :exclusions  [org.clojure/clojurescript]}
          ring/ring-core            {:mvn/version "1.6.3"}
          compojure                 {:mvn/version "1.6.0"}
+
+         ;; required for immutant web logging
          io.undertow/undertow-core {:mvn/version "1.4.22.Final"}
          ;; :scope "runtime" deps not included by tools.deps
-         org.jboss.xnio/xnio-nio {:mvn/version "3.3.8.Final"}}
-
- :main nearby.server
+         org.jboss.xnio/xnio-nio   {:mvn/version "3.3.8.Final"}}
 
  :aliases {:dev
            {:extra-paths ["dev"]
             :extra-deps  {org.clojure/tools.nrepl     {:mvn/version "0.2.12"}
                           org.clojure/tools.namespace {:mvn/version "0.2.11"}
-                          cider/cider-nrepl           {:mvn/version "0.15.1"}}}}
-
- }
+                          cider/cider-nrepl           {:mvn/version "0.15.1"}
+                          refactor-nrepl              {:mvn/version "2.3.1"}}}}}
