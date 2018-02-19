@@ -1,1 +1,0 @@
-{"version":3,"file":"nearby.core.js","sources":["nearby/core.cljs"],"mappings":";;AAEA,2BAAA,3BAAMA;AAAN,AACE,4GAAA,rGAACC","names":["nearby.core/reload!","cljs.core.prn.cljs$core$IFn$_invoke$arity$variadic"],"sourcesContent":["(ns nearby.core)\n\n(defn reload! []\n  (prn \"reloading\"))\n"]}

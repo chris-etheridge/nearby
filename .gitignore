@@ -1,6 +1,5 @@
 node_modules
 target
-
 .cpcache
-
 .nrepl-port
+resources/public/js
