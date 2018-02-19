@@ -22,9 +22,10 @@
     (some-> (handler request)
             (update :headers merge headers))))
 
-(cj/defroutes app
-  (cj/GET "/ws" [] server.ws/handler)
-  (cj/GET "/" [req] (index req)))
+(def app
+  (some-fn
+   (cj/GET "/ws" [] server.ws/handler)
+   (cj/GET "/" [req] (index req))))
 
 (defn start! []
   (if @*server
