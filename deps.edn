@@ -9,7 +9,6 @@
 
          ;; required for immutant web logging
          io.undertow/undertow-core {:mvn/version "1.4.22.Final"}
-         ;; :scope "runtime" deps not included by tools.deps
          org.jboss.xnio/xnio-nio   {:mvn/version "3.3.8.Final"}}
 
  :aliases {:dev
