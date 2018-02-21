@@ -24,4 +24,5 @@
                                   (str "[recv: " (java.util.Date.) "]" message)))})
 
 (defn handler [request]
+  (println "HANDLE!")
   (web.async/as-channel request handlers))

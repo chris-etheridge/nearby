@@ -12,20 +12,15 @@
 (defonce *server (atom nil))
 
 (defn index [request]
-  (println "Received request " (keys request))
   {:status  200
    :headers {"Content-Type" "text/html"}
    :body    (slurp (io/file "resources/public/index.html"))})
 
-(defn with-headers [handler headers]
-  (fn [request]
-    (some-> (handler request)
-            (update :headers merge headers))))
-
-(def app
-  (some-fn
-   (cj/GET "/ws" [] server.ws/handler)
-   (cj/GET "/" [req] (index req))))
+(cj/defroutes app
+  (cj/GET "/" req (index req))
+  (cj/GET "/ws" _ server.ws/handler)
+  (route/resources "/" {:root "resources"})
+  (route/not-found "Not Found"))
 
 (defn start! []
   (if @*server
