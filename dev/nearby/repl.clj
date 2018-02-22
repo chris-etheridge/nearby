@@ -1,9 +1,8 @@
 (ns nearby.repl
   (:require
-   [nearby.server :as nearby.server]
    [cider.nrepl :as cider]
    [clojure.tools.nrepl.server :as nrepl.server]
-   [clojure.tools.namespace.repl :as namespace.repl]
+   [nearby.server :as nearby.server]
    [refactor-nrepl.middleware :as refactor]))
 
 (defn -main [& args]

@@ -1,6 +1,7 @@
 (ns nearby.server.ws
-  (:require [immutant.web.async :as web.async]
-            [clojure.string :as str]))
+  (:require
+   [clojure.string :as str]
+   [immutant.web.async :as web.async]))
 
 (defonce *clients (atom {}))
 
