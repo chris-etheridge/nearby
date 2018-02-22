@@ -23,8 +23,27 @@
   (prn "[ws] socket opened" o)
   o)
 
-(defn start! [ws-uri]
-  (let [sock (js/WebSocket. (str "ws://" (.-host js/window.location) ws-uri))]
+(def *geolocation
+  (atom nil))
+
+(add-watch *geolocation ::geo
+           (fn [& _]
+             (prn "[ws] client gelocation: " @*geolocation)))
+
+(defn ws-url [ws-uri lng lat]
+  (str "ws://" (.-host (.-location js/window)) ws-uri
+       "?coords=" lng "," lat))
+
+(defn setup-navigator-watch! [setup-fn]
+  (if-let [nav (aget js/window "navigator")]
+    (.getCurrentPosition (.-geolocation nav)
+                         (fn [res]
+                           (setup-fn {:lng (.-longitude (.-coords res))
+                                      :lat (.-latitude (.-coords res))})))
+    (prn "[ws] no navigator present")))
+
+(defn setup! [ws-uri {:keys [lng lat]}]
+  (let [sock (js/WebSocket. (ws-url ws-uri lng lat))]
     (set! js/window.sock sock)
     (prn :sock sock)
     (set! (.-onmessage sock) on-message-impl)
@@ -32,3 +51,6 @@
     (set! (.-onerror sock) handle-error)
     (set! (.-onclose sock) on-close)
     (reset! *socket sock)))
+
+(defn start! [ws-uri]
+  (setup-navigator-watch! (partial setup! ws-uri)))

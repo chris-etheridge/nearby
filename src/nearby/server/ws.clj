@@ -1,5 +1,6 @@
 (ns nearby.server.ws
-  (:require [immutant.web.async :as web.async]))
+  (:require [immutant.web.async :as web.async]
+            [clojure.string :as str]))
 
 (defonce *clients (atom {}))
 
@@ -8,15 +9,22 @@
     (web.async/send! channel (-> (assoc message :client-uuid (str uuid))
                                  (pr-str)))))
 
-(defn on-open-impl [channel]
+(defn new-client [channel uuid coords]
+  (let [[lat lng] (str/split coords ",")]
+    {:ws/channel     channel
+     :ws/client-uuid uuid
+     :ws/raw-coords  coords
+     :ws/latitude lat
+     :ws/longitude lng}))
+
+(defn on-open-impl [coords channel]
   (println "OPEN" channel)
   (let [uuid (java.util.UUID/randomUUID)]
-    (swap! *clients assoc uuid channel)
-    (broadcast! @*clients {:event/action :new-client
-                           :user/uuid    (str uuid)})))
+    (swap! *clients assoc uuid (new-client channel uuid coords))))
 
-(def handlers
-  {:on-open on-open-impl
+(defn prepare-handlers [{{coords :coords} :params :as request}]
+  (prn :prepare coords)
+  {:on-open (partial on-open-impl coords)
 
    :on-close (fn [channel {:keys [code reason]}]
                (println "CLOSE" channel "REASON" {:code code :reason reason})
@@ -35,7 +43,7 @@
 
 (defn handler [request]
   (println "HANDLE!")
-  (web.async/as-channel request handlers))
+  (web.async/as-channel request (prepare-handlers request)))
 
 (comment
 

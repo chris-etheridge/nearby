@@ -5,6 +5,8 @@
    [compojure.core :as cj]
    [compojure.route :as route]
    [immutant.web :as web]
+   [ring.middleware.keyword-params :as middleware.kw]
+   [ring.middleware.params :as middleware.params]
    [nearby.server.ws :as server.ws]
    [clojure.string :as str]
    [clojure.edn :as edn]))
@@ -22,11 +24,13 @@
                  (prepare-index request))})
 
 (def web-app
-  (cj/routes
-   (route/resources "/css/" {:root "public/css"})
-   (route/resources "/js/" {:root "public/js"})
-   (cj/GET "/" [_] index)
-   (cj/GET "/ws" [_] server.ws/handler)))
+  (-> (cj/routes
+       (route/resources "/css/" {:root "public/css"})
+       (route/resources "/js/" {:root "public/js"})
+       (cj/GET "/" [_] index)
+       (cj/GET "/ws" [_] server.ws/handler))
+      middleware.kw/wrap-keyword-params
+      middleware.params/wrap-params))
 
 (defn start! []
   (if @*server
