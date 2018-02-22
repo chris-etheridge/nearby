@@ -19,7 +19,3 @@
 
 (defn transact! [tx]
   (d/transact! conn tx))
-
-(d/listen! conn
-           (fn [report]
-             (reset! *db (:db-after report))))

@@ -3,13 +3,15 @@
    [rum.core :as rum]
    [nearby.client.db :as db]
    [nearby.client.ws :as ws]
-   [datascript.core :as d]))
+   [nearby.client.event-source :as es]
+   [datascript.core :as d]
+   [cljs.reader :as edn]))
 
 (enable-console-print!)
 
 (rum/defc message-component < rum/reactive
-  [*db]
-  (let [db (rum/react *db)]
+  [*loop]
+  (let [db (:db (rum/react *loop))]
     [:.messages
      [:h1 "Messages"]
      (for [[id msg] (d/q '[:find ?id ?msg
@@ -20,11 +22,12 @@
        [:.message-content {:key id}
         [:p (pr-str msg)]])]))
 
-(defn mount-it! []
-  (rum/mount (message-component db/*db)
-             (js/document.getElementById "app")))
+(defn mount-it! [*loop]
+  (->> (js/document.getElementById "app")
+       (rum/mount (message-component *loop))))
 
-(defn ^:export start! []
+(defn ^:export start! [ws-uri]
+  (prn :start-uri ws-uri)
   (db/setup-db!)
-  (ws/start!)
-  (mount-it!))
+  (ws/start! ws-uri)
+  (mount-it! (es/start! db/conn)))

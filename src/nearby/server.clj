@@ -5,17 +5,25 @@
    [compojure.core :as cj]
    [compojure.route :as route]
    [immutant.web :as web]
-   [nearby.server.ws :as server.ws]))
+   [nearby.server.ws :as server.ws]
+   [clojure.string :as str]
+   [clojure.edn :as edn]))
 
 (defonce *server (atom nil))
 
-(defn index [_]
+(defn prepare-index [request template]
+  (str/replace template #"\#data\#" (pr-str "/ws")))
+
+(defn index [request]
   {:status  200
    :headers {"Content-Type" "text/html"}
-   :body    (slurp (io/file "resources/public/index.html"))})
+   :body    (->> (io/file "resources/public/index.html")
+                 (slurp)
+                 (prepare-index request))})
 
 (def web-app
   (cj/routes
+   (route/resources "/css/" {:root "public/css"})
    (route/resources "/js/" {:root "public/js"})
    (cj/GET "/" [_] index)
    (cj/GET "/ws" [_] server.ws/handler)))
