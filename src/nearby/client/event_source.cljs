@@ -9,9 +9,9 @@
   (.-EMPTY PersistentQueue))
 
 (defn new-state [db loop]
-  {:db db
-   :loop loop
-   :start (js/Date.)
+  {:db     db
+   :loop   loop
+   :start  (js/Date.)
    :events (new-queue)})
 
 (defn dispatch! [event]
@@ -21,8 +21,13 @@
   (fn [event]
     (:event/action event)))
 
-(defmethod process! :new-message [event]
-  [[:db/add -1 :message/content (:event/message event)]])
+(defn new-client [uuid]
+  {:db/id       -1
+   :client/uuid uuid
+   :client/song ""})
+
+(defmethod process! :new-client [event]
+  [(new-client (:user/uuid event))])
 
 (defn new-loop! [db]
   (js/window.setInterval

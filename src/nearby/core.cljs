@@ -12,15 +12,30 @@
 (rum/defc message-component < rum/reactive
   [*loop]
   (let [db (:db (rum/react *loop))]
-    [:.messages
-     [:h1 "Messages"]
-     (for [[id msg] (d/q '[:find ?id ?msg
-                          :in $
-                          :where
-                          [?id :message/content ?msg]]
-                        db)]
-       [:.message-content {:key id}
-        [:p (pr-str msg)]])]))
+    (prn :db db)
+    [:.container
+     [:.panel
+      [:h1.panel__title "Messages"]
+      [:.panel__content
+       (for [[id msg] (d/q '[:find ?id ?msg
+                             :in $
+                             :where
+                             [?id :message/content ?msg]]
+                           db)]
+         [:.message-content {:key id}
+          [:p (pr-str msg)]])]]
+     [:.panel.panel--muted
+      [:h1.panel__title "Clients"]
+      [:.panel__content
+       (prn :e (map #(vector (:e %) (:v %))
+                    (d/datoms db :avet :client/uuid)))
+       (for [[e v] (map #(vector (:e %) (:v %))
+                        (d/datoms db :avet :client/uuid))]
+         [:.client
+          [:.client__id
+           [:p e]]
+          [:.client__uuid
+           [:p v]]])]]]))
 
 (defn mount-it! [*loop]
   (->> (js/document.getElementById "app")

@@ -3,7 +3,7 @@
    [datascript.core :as d]))
 
 (def schema
-  {:messages {:db/cardinality :db.cardinality/many}})
+  {:client/uuid {:db/index true}})
 
 (def conn
   (d/create-conn schema))
