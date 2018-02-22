@@ -1,33 +1,31 @@
 (ns nearby.server
+  (:gen-class)
   (:require
-   [immutant.web :as web]
    [clojure.java.io :as io]
-   [compojure.route :as route]
    [compojure.core :as cj]
-   [immutant.web.middleware :as middleware]
-
-   [nearby.server.ws :as server.ws])
-  (:gen-class))
+   [compojure.route :as route]
+   [immutant.web :as web]
+   [nearby.server.ws :as server.ws]))
 
 (defonce *server (atom nil))
 
-(defn index [request]
+(defn index [_]
   {:status  200
    :headers {"Content-Type" "text/html"}
    :body    (slurp (io/file "resources/public/index.html"))})
 
-(cj/defroutes app
-  (cj/GET "/" req (index req))
-  (cj/GET "/ws" _ server.ws/handler)
-  (route/resources "/" {:root "resources"})
-  (route/not-found "Not Found"))
+(def web-app
+  (cj/routes
+   (route/resources "/js/" {:root "public/js"})
+   (cj/GET "/" [_] index)
+   (cj/GET "/ws" [_] server.ws/handler)))
 
 (defn start! []
   (if @*server
     (println "Server already running")
     (do
       (println "Starting server on 8080")
-      (reset! *server (web/run #'app {:port 8080})))))
+      (reset! *server (web/run #'web-app {:port 8080})))))
 
 (defn stop! []
   (if-let [stop-args @*server]
@@ -47,11 +45,15 @@
 (defn -main [& args]
   (start!))
 
-
 (comment
   (do
     (clojure.tools.namespace.repl/refresh)
     (restart!))
   (stop!)
   (start!)
+
+  (println (seq (.getURLs (java.lang.ClassLoader/getSystemClassLoader))))
+
+
+
   )
