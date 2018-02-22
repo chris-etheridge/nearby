@@ -18,7 +18,7 @@
                           [?id :message/content ?msg]]
                         db)]
        [:.message-content {:key id}
-        [:p msg]])]))
+        [:p (pr-str msg)]])]))
 
 (defn mount-it! []
   (rum/mount (message-component db/*db)

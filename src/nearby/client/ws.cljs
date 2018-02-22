@@ -6,7 +6,7 @@
 ;; TODO: actual on-message
 (defn on-message [val]
   (db/transact! [{:db/id           -1
-                  :message/content val}]))
+                  :message/content (.-data val)}]))
 
 (defn handle-error [e]
   (prn "[ws] error! " e))
@@ -27,6 +27,7 @@
 
 (defn start! []
   (let [sock (js/WebSocket. ws-uri)]
+    (set! js/window.sock sock)
     (prn :sock sock)
     (set! (.-onmessage sock) on-message)
     (set! (.-onopen sock) on-open)
