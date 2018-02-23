@@ -8,6 +8,7 @@
 ;; TODO: actual on-message
 (defn on-message-impl [message-obj]
   (let [data (.-data message-obj)]
+    (prn :d data)
     (es/dispatch! (assoc (edn/read-string data)
                          :client-ts (js/Date.)))))
 
@@ -44,8 +45,7 @@
 
 (defn setup! [ws-uri {:keys [lng lat]}]
   (let [sock (js/WebSocket. (ws-url ws-uri lng lat))]
-    (set! js/window.sock sock)
-    (prn :sock sock)
+    (prn "[ws] ws-url" (ws-url ws-uri lng lat))
     (set! (.-onmessage sock) on-message-impl)
     (set! (.-onopen sock) on-open)
     (set! (.-onerror sock) handle-error)

@@ -5,31 +5,34 @@
 
 (defonce *clients (atom {}))
 
+@*clients
+
 (defn broadcast! [clients message]
-  (doseq [[uuid channel] clients]
+  (doseq [{:ws/keys []} clients]
     (web.async/send! channel (pr-str
-                              (assoc message :client-uuid (str uuid))))))
+                              (assoc message :client/uuid (str uuid))))))
 
 (defn new-client [channel uuid coords]
-  (let [[lat lng] (str/split coords ",")]
+  (let [[lat lng] (str/split coords #",")]
     {:ws/channel     channel
      :ws/client-uuid uuid
      :ws/raw-coords  coords
      :ws/latitude    lat
      :ws/longitude   lng}))
 
-(defn client-join-msg [{:ws/keys [lattitude longitude client-uuid]}]
+(defn client-join-msg [{:ws/keys [latitude longitude client-uuid]}]
   {:event/action     :client-join
    :client/latitude  latitude
    :client/longitude longitude})
 
 (defn on-open-impl [coords channel]
-  (println "OPEN" channel)
-  (let [uuid (java.util.UUID/randomUUID)]
-    (swap! *clients assoc uuid (new-client channel uuid coords))
-    ))
+  (println "OPEN" channel coords)
+  (let [uuid   (java.util.UUID/randomUUID)
+        client (new-client channel uuid coords)]
+    (swap! *clients assoc uuid client)
+    (broadcast! @*clients (client-join-msg client))))
 
-(defn prepare-handlers [{{coords :coords} :params :as request}]
+(defn prepare-handlers [{{coords "coords"} :params :as request}]
   (prn :prepare coords)
   {:on-open (partial on-open-impl coords)
 
