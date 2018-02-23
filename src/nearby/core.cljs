@@ -27,8 +27,6 @@
      [:.panel.panel--muted
       [:h1.panel__title "Clients"]
       [:.panel__content
-       (prn :e (map #(vector (:e %) (:v %))
-                    (d/datoms db :avet :client/uuid)))
        (for [[e v] (map #(vector (:e %) (:v %))
                         (d/datoms db :avet :client/uuid))]
          [:.client

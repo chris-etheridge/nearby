@@ -8,7 +8,6 @@
 ;; TODO: actual on-message
 (defn on-message-impl [message-obj]
   (let [data (.-data message-obj)]
-    (prn :d data)
     (es/dispatch! (assoc (edn/read-string data)
                          :client-ts (js/Date.)))))
 
