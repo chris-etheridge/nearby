@@ -22,12 +22,10 @@
 
 #?(:clj
    (defn clear-timer
-     "Clears a `java.util.Timer` object."
      [timer]
      (.cancel timer))
    :cljs
    (defn clear-timer
-     "Clears a 'timer' task, which would be initial task function passed."
      [task]
      (js/clearInterval task)))
 
