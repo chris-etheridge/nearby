@@ -3,3 +3,4 @@ target
 .cpcache
 .nrepl-port
 resources/public/js
+.DS_Store
