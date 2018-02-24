@@ -23,9 +23,8 @@
 
 (def web-app
   (-> (cj/routes
-       (route/resources "/css/" {:root "public/css"})
-       (route/resources "/js/" {:root "public/js"})
        (cj/GET "/" [_] index)
+       (route/files "/public" {:root "resources/public"})
        (cj/GET "/ws" [_] server.ws/handler))
       middleware.params/wrap-params))
 
@@ -55,7 +54,9 @@
   (start!))
 
 (comment
+
   (do
+    (require '[clojure.tools.namespace.repl])
     (clojure.tools.namespace.repl/refresh)
     (restart!))
   (stop!)
