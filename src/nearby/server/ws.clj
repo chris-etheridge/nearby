@@ -1,9 +1,9 @@
 (ns nearby.server.ws
   (:require
    [clojure.string :as str]
-   [nearby.haversine :as haversine]
+   [clojure.tools.logging :as logging]
    [immutant.web.async :as web.async]
-   [clojure.tools.logging :as logging]))
+   [nearby.haversine :as haversine]))
 
 (defonce *state (atom {:clients {}}))
 
@@ -15,9 +15,8 @@
   (pr-str data))
 
 (defn calculate-client-distance [{:client/keys [longitude latitude]} client]
-  (logging/info :e client :lng longitude :lat latitude)
-  (haversine/in-kilometers [longitude latitude]
-                           (select-values client [:client/longitude :client/latitude])))
+  (->> (select-values client [:client/longitude :client/latitude])
+       (haversine/in-kilometers [longitude latitude])))
 
 (defn connected-clients-txes [clients requesting-client]
   (when-some [clients (seq clients)]
@@ -45,7 +44,6 @@
                                                 :client/distance distance}))))))
 
 (defn new-client [channel uuid coords]
-  (logging/info "new-client" coords uuid)
   (let [[lng lat] (str/split coords #",")]
     (logging/info :lat lat :lng lng :split)
     {:client/channel     channel
@@ -64,7 +62,7 @@
 (defn on-open-impl [coords channel]
   (let [uuid    (java.util.UUID/randomUUID)
         nclient (new-client channel uuid coords)]
-    (println "OPEN" nclient)
+    (logging/info "new-client" nclient)
     (swap! *state assoc-in [:clients uuid] nclient)
     (web.async/send! channel (write-socket-data (snapshot *state nclient)))
     (maybe-broadcast! (:clients @*state) (client-join-msg nclient))))
