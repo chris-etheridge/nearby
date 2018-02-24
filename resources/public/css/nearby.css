@@ -1,0 +1,22 @@
+.shadow {
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+
+code,
+.code,
+pre {
+  font-family: monospace;
+  background: #f9f9f9;
+  color: black;
+  border-radius: 2px;
+  font-size: 16px;
+  padding: 0;
+  padding: 10px;
+}
+
+code,
+.code,
+pre.o { color: orange; }
+code,
+.code,
+pre.w { color: white; }
