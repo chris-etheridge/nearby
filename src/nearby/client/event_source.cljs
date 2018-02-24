@@ -26,8 +26,8 @@
    :client/uuid uuid
    :client/song ""})
 
-(defmethod process! :new-client [event]
-  [(new-client (:user/uuid event))])
+(defmethod process! :client-join [event]
+  [(new-client (:client/uuid event))])
 
 (defn new-loop! [db]
   (js/window.setInterval
