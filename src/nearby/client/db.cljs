@@ -3,19 +3,8 @@
    [datascript.core :as d]))
 
 (def schema
-  {:client/uuid {:db/index true}})
+  {:client/client-uuid {:db/index true}
+   :client/status      {:db/index true :db/cardinality :db.cardinality/one}})
 
 (def conn
   (d/create-conn schema))
-
-(def *db (atom nil))
-
-(defn setup-db! []
-  (d/transact! conn
-               [{:db/id           -1
-                 :message/content "The first message!"}
-                {:db/id           -2
-                 :message/content "And then this message came along.."}]))
-
-(defn transact! [tx]
-  (d/transact! conn tx))

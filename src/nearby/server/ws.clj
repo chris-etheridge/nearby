@@ -20,11 +20,11 @@
 
 (defn connected-clients-txes [clients requesting-client]
   (when-some [clients (seq clients)]
-    (for [{:client/keys [uuid longitude latitude] :as client} clients]
-      {:client/uuid      uuid
-       :client/distance  (calculate-client-distance client requesting-client)
-       :client/latitude  latitude
-       :client/longitude longitude})))
+    (for [{:client/keys [client-uuid longitude latitude] :as client} clients]
+      {:client/client-uuid client-uuid
+       :client/distance    (calculate-client-distance client requesting-client)
+       :client/latitude    latitude
+       :client/longitude   longitude})))
 
 (defn snapshot [*state requesting-client]
   {:event/action :sync-clients
@@ -39,9 +39,9 @@
                                                         :client/latitude  latitude}
                                                        message)]
             :when (>= 50 distance)] ;; TODO: config var
-      (web.async/send! channel (pr-str ;; TODO: transit encoding
-                                (merge message {:client/uuid     (str client-uuid)
-                                                :client/distance distance}))))))
+      (web.async/send! channel (write-socket-data
+                                (merge message {:client/client-uuid (str client-uuid)
+                                                :client/distance    distance}))))))
 
 (defn new-client [channel uuid coords]
   (let [[lng lat] (str/split coords #",")]

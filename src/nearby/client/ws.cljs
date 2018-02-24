@@ -2,7 +2,7 @@
   (:require
    [nearby.client.db :as db]
    [clojure.string :as string]
-   [nearby.client.event-source :as es]
+   [nearby.event-source :as es]
    [cljs.reader :as edn]))
 
 ;; TODO: actual on-message
@@ -38,8 +38,12 @@
   (if-let [nav (aget js/window "navigator")]
     (.getCurrentPosition (.-geolocation nav)
                          (fn [res]
+                           (es/dispatch! {:event/action :set-status
+                                          :status/value :status/gelocation-loaded})
                            (setup-fn {:lng (.-longitude (.-coords res))
-                                      :lat (.-latitude (.-coords res))})))
+                                      :lat (.-latitude (.-coords res))})
+                           (es/dispatch! {:event/action :set-status
+                                          :status/value :status/loaded})))
     (prn "[ws] no navigator present")))
 
 (defn setup! [ws-uri {:keys [lng lat]}]
@@ -49,6 +53,8 @@
     (set! (.-onopen sock) on-open)
     (set! (.-onerror sock) handle-error)
     (set! (.-onclose sock) on-close)
+    (es/dispatch! {:event/action :set-status
+                   :status/value :status/ws-loaded})
     (reset! *socket sock)))
 
 (defn start! [ws-uri]
