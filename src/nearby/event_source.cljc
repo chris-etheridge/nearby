@@ -8,39 +8,41 @@
 (defn new-state [db loop]
   {:es/db               db
    :es/loop             loop
-   :es/start  (util/date)
+   :es/start            (util/date)
    :es/events           []
    :es/confirmed-events []
    :es/failed-events    []})
 
 (defn dispatch! [event]
-  (swap! *state update :es/events conj (merge event {:event/uuid (util/new-uuid)
+  (swap! *state update :es/events conj (merge event {:event/uuid          (util/new-uuid)
                                                      :event/dispatched-at (util/date)})))
 
 (defmulti process!
   (fn [db event]
     (:event/action event)))
 
-(defn safe-with [db tx]
+(defn fail-event! [*state event extra exception]
+  (swap! *state update :es/failed-events conj
+         (cond-> (merge event {:es/exception-extra exception})
+           extra (merge extra)))
+  nil)
+
+(defn safe [task fail-task]
   (try
-    (:db-after (d/with db tx))
+    (task)
     (catch #?(:clj Exception :cljs js/Error) e
-      (prn "[es] error! in process-events"
-           {:error e
-            :tx    tx
-            :db    db})
-      nil)))
+      (fail-task e))))
 
 (defn process-events [*state events]
   (loop [events events]
     (let [event (first events)
-          db (:es/db @*state)
-          tx (process! db event)]
-      (if-let [db' (safe-with db tx)]
-        (do
+          db    (:es/db @*state)]
+      (when-let [tx (safe #(process! db event)
+                          (partial fail-event! *state event {}))]
+        (when-let [db' (safe #(:db-after (d/with db tx))
+                             (partial fail-event! *state event {:es/tx tx}))]
           (swap! *state assoc  :es/db db')
-          (swap! *state update :es/confirmed-events conj event))
-        (swap! *state assoc :es/failed-events conj event))
+          (swap! *state update :es/confirmed-events conj event)))
       (if (seq (rest events))
         (recur (rest events))
         nil))))

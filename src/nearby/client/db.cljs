@@ -4,7 +4,8 @@
 
 (def schema
   {:client/client-uuid {:db/index true}
-   :client/status      {:db/index true :db/cardinality :db.cardinality/one}})
+   :app/status         {:db/index true :db/cardinality :db.cardinality/one}
+   :user/client-uuid    {:db/index true :db/unique :db.unique/value}})
 
 (def conn
   (d/create-conn schema))

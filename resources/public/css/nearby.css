@@ -20,3 +20,7 @@ pre.o { color: orange; }
 code,
 .code,
 pre.w { color: white; }
+
+.failed-events pre {
+    border-color: #fb6161;
+}

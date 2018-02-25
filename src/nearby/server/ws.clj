@@ -27,7 +27,8 @@
        :client/longitude   longitude})))
 
 (defn snapshot [*state requesting-client]
-  {:event/action :sync-clients
+  {:event/action :sync-user
+   :client/client-uuid (:client/client-uuid requesting-client)
    :event/uuid   (java.util.UUID/randomUUID)
    :sync/time    (.getTime (java.util.Date.))
    :db/clients   (connected-clients-txes (vals (:clients *state)) requesting-client)})

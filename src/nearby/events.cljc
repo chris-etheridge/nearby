@@ -12,12 +12,16 @@
 (defmethod es/process! :client-join [db event]
   [(new-client event)])
 
-(defmethod es/process! :sync-clients [db event]
-  (prn :event event)
-  [])
+(defmethod es/process! :sync-user [db event]
+  (let [uuid (:client/client-uuid event)]
+    (if-let [current (d/entity db [:user/client-uuid uuid])]
+      []
+      [{:db/id                -1
+        :user/client-uuid uuid}])))
 
-(defmethod es/process! :set-status [db event]
-  (if-some [status-id (:e (first (d/datoms db :avet :client/status)))
-            ]
-    [[:db/add status-id :client/status (:status/value event)]]
-    [[:db/add -1 :client/status (:status/value event)]]))
+(defmethod es/process! :set-song [db event])
+
+(defmethod es/process! :set-ao-status [db event]
+  (if-some [status-id (:e (first (d/datoms db :avet :app/status)))]
+    [[:db/add status-id :app/status (:status/value event)]]
+    [{:db/id -1 :app/status (:status/value event)}]))
