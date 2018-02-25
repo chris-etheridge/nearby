@@ -14,8 +14,9 @@
    :es/failed-events    []})
 
 (defn dispatch! [event]
-  (swap! *state update :es/events conj (merge event {:event/uuid          (util/new-uuid)
-                                                     :event/dispatched-at (util/date)})))
+  (->> (merge event {:event/uuid          (util/new-uuid)
+                     :event/dispatched-at (util/date)})
+       (swap! *state update :es/events conj)))
 
 (defmulti process!
   (fn [db event]

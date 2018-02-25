@@ -1,3 +1,4 @@
-#! /bin/bash
+#! /bin/bash -e -x
 
-clj -C:dev -R:dev -m nearby.repl
+#     [ repl-port | web-port | cljs-build ]
+clj -C:$1 -R:$1 -m nearby.repl 6661 8080 $1

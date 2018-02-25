@@ -1,7 +1,7 @@
 (ns nearby.events
   (:require
-   [nearby.event-source :as es]
-   [datascript.core :as d]))
+   [datascript.core :as d]
+   [nearby.event-source :as es]))
 
 (defn new-client [client-data]
   (merge {:db/id       -1

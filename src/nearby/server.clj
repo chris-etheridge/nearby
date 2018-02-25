@@ -3,6 +3,7 @@
   (:require
    [clojure.java.io :as io]
    [clojure.string :as str]
+   [clojure.tools.logging :as logging]
    [compojure.core :as cj]
    [compojure.route :as route]
    [immutant.web :as web]
@@ -28,36 +29,36 @@
        (cj/GET "/ws" [_] server.ws/handler))
       middleware.params/wrap-params))
 
-(defn start! []
+(defn start! [port]
   (if @*web-server
-    (println "Server already running")
-    (do
-      (println "Starting server on 8080")
-      (reset! *web-server (web/run #'web-app {:port 8080})))))
+    (logging/info "[server] Server already running")
+    (let [port (or port 8080)]
+      (logging/info "[server] Starting server on" port)
+      (reset! *web-server (web/run #'web-app {:port port})))))
 
 (defn stop! []
   (if-let [stop-args @*web-server]
     (do
-      (println "Shutting down server")
+      (logging/info "[server] Shutting down server")
       (web/stop stop-args)
       (reset! *web-server nil)
-      (println "Server shut down"))
-    (println "Server not running")))
+      (logging/info "[server] Server shut down"))
+    (logging/info "[server] Server not running")))
 
-(defn restart! []
-  (println "Restarting ...")
+(defn restart! [web-port]
+  (logging/info "[server] Restarting server")
   (stop!)
-  (start!)
-  (print "Done"))
+  (start! web-port)
+  (logging/info "[server] Done"))
 
-(defn -main [& args]
-  (start!))
+(defn -main [& [web-port]]
+  (start! (Integer/parseInt web-port)))
 
 (comment
 
   (do
     (require '[clojure.tools.namespace.repl])
     (clojure.tools.namespace.repl/refresh)
-    (restart!))
+    (restart! 8080))
   (stop!)
-  (start!))
+  (start! 8080))

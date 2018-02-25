@@ -14,7 +14,7 @@
 
 #?(:clj
    (defn run-periodically [task n]
-     (let [task (timer-task task)
+     (let [task  (timer-task task)
            timer (Timer.)]
        (.schedule timer task 0 n)
        timer))
