@@ -1,6 +1,7 @@
 (ns nearby.event-source
-  (:require [datascript.core :as d]
-            [nearby.util :as util]))
+  (:require
+   [datascript.core :as d]
+   [nearby.util :as util]))
 
 (defonce *state (atom nil))
 
@@ -13,7 +14,8 @@
    :es/failed-events    []})
 
 (defn dispatch! [event]
-  (swap! *state update :es/events conj event))
+  (swap! *state update :es/events conj (merge event {:event/uuid (util/new-uuid)
+                                                     :event/dispatched-at (util/date)})))
 
 (defmulti process!
   (fn [db event]
@@ -33,7 +35,6 @@
   (loop [events events]
     (let [event (first events)
           db (:es/db @*state)
-          _ (prn :event event)
           tx (process! db event)]
       (if-let [db' (safe-with db tx)]
         (do
@@ -51,7 +52,7 @@
     (swap! *state assoc :es/events [])))
 
 (defn new-loop! [*state]
-  (util/run-periodically tick! 600))
+  (util/run-periodically tick! util/animation-frame-ms))
 
 (defn start! [conn]
   (let [db   (d/db conn)

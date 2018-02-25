@@ -3,21 +3,23 @@
    [nearby.client.db :as db]
    [clojure.string :as string]
    [nearby.event-source :as es]
-   [cljs.reader :as edn]))
+   [cljs.reader :as edn]
+   [nearby.util :as util]))
 
-;; TODO: actual on-message
+;; TODO: this is hacky
+(def *ws-client-uuid
+  (atom nil))
+
 (defn on-message-impl [message-obj]
-  (let [data (.-data message-obj)]
-    (es/dispatch! (assoc (edn/read-string data)
-                         :client-ts (js/Date.)))))
+  (let [data (edn/read-string (.-data message-obj))]
+    (reset! *ws-client-uuid (:client/client-uuid data))
+    (es/dispatch! (assoc data :ws/send-client-ts (util/date)))))
 
 (defn handle-error [e]
   (prn "[ws] error! " e))
 
 (defn on-close [o]
   (prn "[ws] socket closed" o))
-
-(def *socket (atom nil))
 
 (defn on-open [o]
   (prn "[ws] socket opened" o)
@@ -46,16 +48,25 @@
                                           :status/value :status/loaded})))
     (prn "[ws] no navigator present")))
 
+(defn heartbeat [socket]
+  (when-let [uuid @*ws-client-uuid] ;; only heartbeat once we've got a client
+    (.send socket (pr-str {:es/action             :heartbeat
+                           :heartbeat/client-uuid uuid
+                           :heartbeat/ts          (util/date)}))))
+
+(defn setup-socket! [socket]
+  (set! (.-onmessage socket) on-message-impl)
+  (set! (.-onopen socket)    on-open)
+  (set! (.-onerror socket)   handle-error)
+  (set! (.-onclose socket)   on-close)
+  (util/run-periodically (partial heartbeat socket) 5000)
+  (es/dispatch! {:event/action :set-status
+                 :status/value :status/ws-loaded}))
+
 (defn setup! [ws-uri {:keys [lng lat]}]
   (let [sock (js/WebSocket. (ws-url ws-uri lng lat))]
     (prn "[ws] ws-url" (ws-url ws-uri lng lat))
-    (set! (.-onmessage sock) on-message-impl)
-    (set! (.-onopen sock) on-open)
-    (set! (.-onerror sock) handle-error)
-    (set! (.-onclose sock) on-close)
-    (es/dispatch! {:event/action :set-status
-                   :status/value :status/ws-loaded})
-    (reset! *socket sock)))
+    (setup-socket! sock)))
 
 (defn start! [ws-uri]
   (setup-navigator-watch! (partial setup! ws-uri)))

@@ -1,6 +1,8 @@
 (ns nearby.util
   #?(:clj (:import [java.util Timer TimerTask])))
 
+(def animation-frame-ms 16)
+
 #?(:clj
    (defn- timer-task [task]
      (proxy [TimerTask] []
@@ -40,3 +42,9 @@
       (java.util.Date. t)
       :cljs
       (js/Date. t))))
+
+(defn new-uuid []
+  #?(:clj
+     (java.util.UUID/randomUUID)
+     :cljs
+     (random-uuid)))
