@@ -15,5 +15,7 @@
        (rum/mount (client.app/app *loop))))
 
 (defn ^:export start! [ws-uri]
-  (client.ws/start! ws-uri)
-  (mount-it! (es/start! client.db/conn)))
+  (let [*loop   (es/start! client.db/conn)
+        socket  (client.ws/start! ws-uri)]
+    (swap! *loop assoc :ws/socket socket)
+    (mount-it! *loop)))

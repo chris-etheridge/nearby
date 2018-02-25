@@ -46,7 +46,7 @@
 (rum/defc app < rum/reactive
   [*loop]
   (let [{:es/keys [failed-events confirmed-events db]} (rum/react *loop)]
-    (prn :d db)
+    (prn :*loop @*loop)
     [:.container
      [:h1.title "Music nearby"]
      (when-let [song (active-song db)]

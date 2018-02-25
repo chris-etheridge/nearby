@@ -8,6 +8,7 @@
 
 (def *set-client?    (atom false))
 (def *ws-client-uuid (atom nil))
+(def *ws-socket      (atom nil))
 
 (defn on-message-impl [message-obj]
   (let [data (edn/read-string (.-data message-obj))]
@@ -52,6 +53,7 @@
 
 (defn setup-socket! [socket]
   (prn "[ws] Setting up socket and heartbeat")
+  (reset! *ws-socket socket)
   (set! (.-onmessage socket) on-message-impl)
   (set! (.-onopen socket)    on-open)
   (set! (.-onerror socket)   handle-error)
@@ -68,4 +70,5 @@
 
 (defn start! [ws-uri]
   (prn "[ws] Starting ws with " ws-uri)
-  (setup-navigator-watch! (partial setup! ws-uri)))
+  (setup-navigator-watch! (partial setup! ws-uri))
+  *ws-socket)
