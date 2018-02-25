@@ -1,15 +1,19 @@
 {:paths ["src"]
- :deps  {rum                       {:mvn/version "0.11.1"}
-         org.clojure/tools.logging {:mvn/version "0.3.1"}
-         org.immutant/web          {:mvn/version "2.1.10"}
-         datascript                {:mvn/version "0.16.3"
-                                    :exclusions  [org.clojure/clojurescript]}
-         ring/ring-core            {:mvn/version "1.6.3"}
-         compojure                 {:mvn/version "1.6.0"}
-         cljsjs/react              {:mvn/version "16.2.0-3"}
+ :deps  {;; server
+         org.clojure/tools.logging  {:mvn/version "0.3.1"}
+         org.immutant/web           {:mvn/version "2.1.10"}
+         datascript                 {:mvn/version "0.16.3"
+                                     :exclusions  [org.clojure/clojurescript]}
+         ring/ring-core             {:mvn/version "1.6.3"}
+         compojure                  {:mvn/version "1.6.0"}
+         ;; client
+         rum                        {:mvn/version "0.11.1"}
+         cljsjs/react               {:mvn/version "16.2.0-3"}
+         com.cognitect/transit-clj  {:mvn/version "0.8.300"}
+         com.cognitect/transit-cljs {:mvn/version "0.8.243"}
          ;; required for immutant web logging
-         io.undertow/undertow-core {:mvn/version "1.4.22.Final"}
-         org.jboss.xnio/xnio-nio   {:mvn/version "3.3.8.Final"}}
+         io.undertow/undertow-core  {:mvn/version "1.4.22.Final"}
+         org.jboss.xnio/xnio-nio    {:mvn/version "3.3.8.Final"}}
 
  :aliases {:dev
            {:extra-paths ["dev"]
