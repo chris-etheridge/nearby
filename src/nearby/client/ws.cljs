@@ -51,6 +51,8 @@
                            :heartbeat/client-uuid uuid
                            :heartbeat/ts          (util/date)}))))
 
+(def HEARTBEAT-MS (* 1000 30)) ;; every 30s
+
 (defn setup-socket! [socket]
   (prn "[ws] Setting up socket and heartbeat")
   (reset! *ws-socket socket)
@@ -58,7 +60,7 @@
   (set! (.-onopen socket)    on-open)
   (set! (.-onerror socket)   handle-error)
   (set! (.-onclose socket)   on-close)
-  (util/run-periodically (partial heartbeat socket) 5000)
+  (util/run-periodically (partial heartbeat socket) HEARTBEAT-MS)
   (es/dispatch! {:event/action :set-app-status
                  :status/value :status/ws-loaded}))
 
