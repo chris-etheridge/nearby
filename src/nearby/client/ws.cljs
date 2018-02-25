@@ -11,7 +11,6 @@
 
 (defn on-message-impl [message-obj]
   (let [data (edn/read-string (.-data message-obj))]
-    (prn :data (:client/client-uuid data))
     (when (= (:event/action data) :sync-user)
       (when-not @*set-client?
         (reset! *set-client? true)

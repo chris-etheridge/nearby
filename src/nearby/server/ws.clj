@@ -3,7 +3,8 @@
    [clojure.string :as str]
    [clojure.tools.logging :as logging]
    [immutant.web.async :as web.async]
-   [nearby.haversine :as haversine]))
+   [nearby.haversine :as haversine]
+   [nearby.util :as util]))
 
 (defonce *state (atom {:clients {}}))
 
@@ -50,15 +51,16 @@
     {:client/channel     channel
      :client/client-uuid uuid
      :client/raw-coords  coords
+     :client/song        (rand-nth ["Pop - Not now"
+                                    "Grey - Its too late!"
+                                    "Fary - Bring it"])
      :client/latitude    (Double/parseDouble lat)
      :client/longitude   (Double/parseDouble lng)}))
 
-(defn client-join-msg [{:client/keys [latitude longitude client-uuid]}]
-  {:event/action     :client-join
-   :event/uuid       (java.util.UUID/randomUUID)
-   :client/uuid      client-uuid
-   :client/latitude  latitude
-   :client/longitude longitude})
+(defn client-join-msg [client]
+  (merge (dissoc client :client/channel)
+         {:event/action     :client-join
+          :event/uuid       (util/new-uuid)}))
 
 (defn on-open-impl [coords channel]
   (let [uuid    (java.util.UUID/randomUUID)

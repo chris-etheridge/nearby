@@ -36,13 +36,22 @@
      [:.card-content {:key (str "events-" k "/" (hash (:event/uuid event)))}
       [:pre (pr-str event)]])])
 
+(defn active-song [db]
+  (d/q '[:find ?song .
+         :in $
+         :where
+         [_ :user/active-song ?song]]
+       db))
+
 (rum/defc app < rum/reactive
   [*loop]
   (let [{:es/keys [failed-events confirmed-events db]} (rum/react *loop)]
     (prn :d db)
     [:.container
      [:h1.title "Music nearby"]
-     (let [status (:v (first (reverse (d/datoms db :avet :client/status))))]
+     (when-let [song (active-song db)]
+       [:h3.active-song (str "My active song is " song)])
+     (let [status (:v (first (es-by-avet db :app/status)))]
        [:h3
         (case status
           :status/gelocation-loaded "Gelocation acquired."
