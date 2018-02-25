@@ -13,7 +13,7 @@
 
 (rum/defcs client-card
   [local db {:client/keys [client-uuid distance song longitude latitude]}]
-  [:.client {:key (str "client-card/" client-uuid)}
+  [:.client.xs-p2 {:key (str "client-card/" client-uuid)}
    (prn :ACTIVE (current-user-uuid db))
    [:.col-5.client__uuid
     [:p client-uuid]]
@@ -33,8 +33,16 @@
 (rum/defc event-cards [events k]
   [:.cards
    (for [event events]
-     [:.card-content {:key (str "events-" k "/" (hash (:event/uuid event)))}
-      [:pre (pr-str event)]])])
+     [:.card.xs-p2.card-content {:key (str "events-" k "/" (hash (:event/uuid event)))}
+      [:p "Action: " (str (:event/action event))]
+      [:div
+       [:p "Data: "]
+       [:code
+        (pr-str (dissoc event
+                        :event/dispatched-at :event/uuid
+                        :event/action))]]
+      [:p.xs-text-6
+       "Time: " (str (:event/dispatched-at event))]])])
 
 (defn active-song [db]
   (d/q '[:find ?song .
@@ -47,10 +55,8 @@
   [*loop]
   (let [{:es/keys [failed-events confirmed-events db]} (rum/react *loop)]
     (prn :*loop @*loop)
-    [:.container
+    [:.container.clearfix.gutters
      [:h1.title "Music nearby"]
-     (when-let [song (active-song db)]
-       [:h3.active-song (str "My active song is " song)])
      (let [status (:v (first (es-by-avet db :app/status)))]
        [:h3
         (case status
@@ -58,17 +64,16 @@
           :status/loaded            ""
           :status/ws-loaded         "Connected to server, acquiring gelocation ... "
           "Connecting to server ...")])
-     [:.panel
-      [:h3.panel__title "Confirmed events"]
-      [:.panel__content
-       (event-cards confirmed-events "confirmed")]]
-     [:.panel
-      [:h3.panel__title "Failed events"]
-      [:.panel__content.failed-events
-       (event-cards failed-events "failed")]]
-     [:.panel.panel--muted
+     [:.panel.col.xs-col-8
       [:h3.panel__title "Clients"]
       [:.row.animation.fade-in.panel__content
        (map #(rum/with-key
                (client-card db %)
-               (:client/client-uuid %)) (es-by-avet db :client/client-uuid))]]]))
+               (:client/client-uuid %)) (es-by-avet db :client/client-uuid))]]
+     [:.panel.col.xs-col-4
+      [:h3.panel__title "Confirmed events"]
+      [:.panel__content
+       (event-cards confirmed-events "confirmed")]
+      [:h3.panel__title "Failed events"]
+      [:.panel__content.failed-events
+       (event-cards failed-events "failed")]]]))
