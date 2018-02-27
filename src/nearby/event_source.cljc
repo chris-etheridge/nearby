@@ -1,6 +1,7 @@
 (ns nearby.event-source
   (:require
    [datascript.core :as d]
+   [nearby.util.time :as time]
    [nearby.util :as util]))
 
 (defonce *state (atom nil))

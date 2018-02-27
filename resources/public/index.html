@@ -11,10 +11,15 @@
     <body>
 
         <div id="app"></div>
+        <script id="init" type="application/transit+json">
+            #data#
+        </script>
 
-        <script src="/public/js/main.js"></script>
+        <div id="main">
+            <script type="application/javascript" src="/public/js/main.js"></script>            
+        </div>
 
-        <script>nearby.core.start_BANG_(#data#)</script>
+        <script>nearby.core.start_BANG_()</script>
 
     </body>
 </html>

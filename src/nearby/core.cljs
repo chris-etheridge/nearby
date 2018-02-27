@@ -5,6 +5,7 @@
    [nearby.client.ws :as client.ws]
    [nearby.client.app :as client.app]
    [nearby.event-source :as es]
+   [nearby.util.transit :as transit]
    [nearby.events :as events]
    [cljs.reader :as edn]))
 

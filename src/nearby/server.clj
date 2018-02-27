@@ -13,7 +13,8 @@
 (defonce *web-server (atom nil))
 
 (defn render-index [request template]
-  (str/replace template #"\#data\#" (pr-str "/ws")))
+  (str/replace template #"\#data\#"
+               (transit/write-transit-str {:config/ws-uri "/ws"})))
 
 (defn index [request]
   {:status  200
