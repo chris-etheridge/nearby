@@ -3,9 +3,9 @@
    [clojure.string :as str]
    [clojure.tools.logging :as logging]
    [immutant.web.async :as web.async]
+   [nearby.util :as util]
    [nearby.util.haversine :as haversine]
-   [nearby.util.time :as time]
-   [nearby.util :as util]))
+   [nearby.util.time :as time]))
 
 (defonce *state (atom {:clients {}}))
 
