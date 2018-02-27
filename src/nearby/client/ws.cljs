@@ -4,7 +4,7 @@
    [clojure.string :as string]
    [nearby.event-source :as es]
    [cljs.reader :as edn]
-   [nearby.util :as util]))
+   [nearby.util.time :as time]))
 
 (def *set-client?    (atom false))
 (def *ws-client-uuid (atom nil))
@@ -49,7 +49,7 @@
   (when-let [uuid @*ws-client-uuid] ;; only heartbeat once we've got a client
     (.send socket (pr-str {:es/action             :heartbeat
                            :heartbeat/client-uuid uuid
-                           :heartbeat/ts          (util/date)}))))
+                           :heartbeat/ts          (time/date)}))))
 
 (def HEARTBEAT-MS (* 1000 30)) ;; every 30s
 
@@ -60,7 +60,7 @@
   (set! (.-onopen socket)    on-open)
   (set! (.-onerror socket)   handle-error)
   (set! (.-onclose socket)   on-close)
-  (util/run-periodically (partial heartbeat socket) HEARTBEAT-MS)
+  (time/run-periodically (partial heartbeat socket) HEARTBEAT-MS)
   (es/dispatch! {:event/action :set-app-status
                  :status/value :status/ws-loaded}))
 

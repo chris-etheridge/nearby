@@ -5,16 +5,11 @@
    [nearby.event-source :as es]))
 
 (defn current-user-uuid [db]
-  (d/q '[:find ?uuid
-         :in $
-         :where
-         [_ :user/client-uuid ?uuid]]
-       db))
+  (:user/client-uuid db))
 
 (rum/defcs client-card
   [local db {:client/keys [client-uuid distance song longitude latitude]}]
   [:.client.xs-p2 {:key (str "client-card/" client-uuid)}
-   (prn :ACTIVE (current-user-uuid db))
    [:.col-5.client__uuid
     [:p client-uuid]]
    [:.col-1.client__distance
@@ -25,10 +20,6 @@
      [:button {:on-click #(es/dispatch! {:event/action     :set-song
                                          :song/value       song
                                          :user/client-uuid (current-user-uuid db)})}]]]])
-
-(defn es-by-avet [db attr]
-  (->> (d/datoms db :avet attr)
-       (map #(d/entity db (:e %)))))
 
 (rum/defc event-cards [events k]
   [:.cards
@@ -45,11 +36,7 @@
        "Time: " (str (:event/dispatched-at event))]])])
 
 (defn active-song [db]
-  (d/q '[:find ?song .
-         :in $
-         :where
-         [_ :user/active-song ?song]]
-       db))
+  (:user/song db))
 
 (rum/defc app < rum/reactive
   [*loop]
@@ -57,7 +44,7 @@
     (prn :*loop @*loop)
     [:.container.clearfix.gutters
      [:h1.title "Music nearby"]
-     (let [status (:v (first (es-by-avet db :app/status)))]
+     (let [status (:system/app-status db)]
        [:h3
         (case status
           :status/gelocation-loaded "Gelocation acquired."
@@ -69,7 +56,8 @@
       [:.row.animation.fade-in.panel__content
        (map #(rum/with-key
                (client-card db %)
-               (:client/client-uuid %)) (es-by-avet db :client/client-uuid))]]
+               (:client/client-uuid %))
+            (:ws/clients db))]]
      [:.panel.col.xs-col-4
       [:h3.panel__title "Confirmed events"]
       [:.panel__content

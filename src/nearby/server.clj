@@ -7,8 +7,10 @@
    [compojure.core :as cj]
    [compojure.route :as route]
    [immutant.web :as web]
+   [nearby.util.transit :as transit]
    [nearby.server.ws :as server.ws]
-   [ring.middleware.params :as middleware.params]))
+   [ring.middleware.params :as middleware.params]
+   [nearby.util :as util]))
 
 (defonce *web-server (atom nil))
 

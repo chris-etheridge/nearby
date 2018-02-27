@@ -3,7 +3,8 @@
    [clojure.string :as str]
    [clojure.tools.logging :as logging]
    [immutant.web.async :as web.async]
-   [nearby.haversine :as haversine]
+   [nearby.util.haversine :as haversine]
+   [nearby.util.time :as time]
    [nearby.util :as util]))
 
 (defonce *state (atom {:clients {}}))
@@ -31,7 +32,7 @@
   {:event/action :sync-user
    :client/client-uuid (:client/client-uuid requesting-client)
    :event/uuid   (java.util.UUID/randomUUID)
-   :sync/time    (.getTime (java.util.Date.))
+   :sync/time    (.getTime (time/date))
    :db/clients   (connected-clients-txes (vals (:clients *state)) requesting-client)})
 
 (defn maybe-broadcast! [clients message]

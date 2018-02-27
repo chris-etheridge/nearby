@@ -1,4 +1,4 @@
-(ns nearby.haversine)
+(ns nearby.util.haversine)
 
 (def R "Earth radius in meters"
   637100)

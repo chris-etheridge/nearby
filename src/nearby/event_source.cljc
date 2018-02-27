@@ -9,14 +9,14 @@
 (defn new-state [db loop]
   {:es/db               db
    :es/loop             loop
-   :es/start            (util/date)
+   :es/start            (time/date)
    :es/events           []
    :es/confirmed-events []
    :es/failed-events    []})
 
 (defn dispatch! [event]
   (->> (merge event {:event/uuid          (util/new-uuid)
-                     :event/dispatched-at (util/date)})
+                     :event/dispatched-at (time/date)})
        (swap! *state update :es/events conj)))
 
 (defmulti process!
@@ -39,12 +39,10 @@
   (loop [events events]
     (let [event (first events)
           db    (:es/db @*state)]
-      (when-let [tx (safe #(process! db event)
-                          (partial fail-event! *state event {}))]
-        (when-let [db' (safe #(:db-after (d/with db tx))
-                             (partial fail-event! *state event {:es/tx tx}))]
-          (swap! *state assoc  :es/db db')
-          (swap! *state update :es/confirmed-events conj event)))
+      (when-let [db' (safe #(process! db event)
+                           (partial fail-event! *state event))]
+        (swap! *state assoc  :es/db db')
+        (swap! *state update :es/confirmed-events conj event))
       (if (seq (rest events))
         (recur (rest events))
         nil))))
@@ -56,13 +54,17 @@
     (swap! *state assoc :es/events [])))
 
 (defn new-loop! [*state]
-  (util/run-periodically tick! util/animation-frame-ms))
+  (time/run-periodically tick! time/animation-frame-ms))
 
-(defn start! [conn]
-  (let [db   (d/db conn)
+(defn new-database [state]
+  (merge {:db/start (time/date)}
+         state))
+
+(defn start! [initial-state]
+  (let [db   (new-database initial-state)
         loop (new-loop! *state)]
     (reset! *state (new-state db loop))
     *state))
 
 (defn stop! []
-  (util/clear-timer (:es/loop @*state)))
+  (time/clear-timer (:es/loop @*state)))

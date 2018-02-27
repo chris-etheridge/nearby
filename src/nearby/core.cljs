@@ -11,12 +11,15 @@
 
 (enable-console-print!)
 
-(defn mount-it! [*loop]
-  (->> (js/document.getElementById "app")
-       (rum/mount (client.app/app *loop))))
+(defn get-initial-state []
+  (some-> (js/document.getElementById "init")
+          (.-textContent)))
 
-(defn ^:export start! [ws-uri]
-  (let [*loop   (es/start! client.db/conn)
-        socket  (client.ws/start! ws-uri)]
+(defn ^:export start! []
+  (let [initial-state (get-initial-state)
+        initial-state (transit/read-transit-str initial-state)
+        *loop   (es/start! initial-state)
+        socket  (client.ws/start! (:config/ws-uri initial-state))]
     (swap! *loop assoc :ws/socket socket)
-    (mount-it! *loop)))
+    (->> (js/document.getElementById "app")
+         (rum/mount (client.app/app *loop)))))
