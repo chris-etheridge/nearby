@@ -5,7 +5,8 @@
                 :asset-path "/public/js"
                 :target     :browser
                 :modules    {:main {:entries [nearby.core]}}
-                :devtools {:after-load nearby.core/reload!
+                :devtools {:preloads [devtools.preload]
+                           :after-load nearby.core/reload!
                            :watch-dir "public"}}
 
           :app {:output-dir "target/"

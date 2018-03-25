@@ -2,8 +2,6 @@
  :deps  {;; server
          org.clojure/tools.logging  {:mvn/version "0.3.1"}
          org.immutant/web           {:mvn/version "2.1.10"}
-         datascript                 {:mvn/version "0.16.3"
-                                     :exclusions  [org.clojure/clojurescript]}
          ring/ring-core             {:mvn/version "1.6.3"}
          compojure                  {:mvn/version "1.6.0"}
          ;; client
@@ -21,4 +19,5 @@
                           org.clojure/tools.namespace {:mvn/version "0.2.11"}
                           cider/cider-nrepl           {:mvn/version "0.16.0"}
                           thheller/shadow-cljs        {:mvn/version "2.1.25"}
-                          refactor-nrepl              {:mvn/version "2.3.1"}}}}}
+                          refactor-nrepl              {:mvn/version "2.3.1"}
+                          binaryage/devtools {:mvn/version "0.9.9"}}}}}

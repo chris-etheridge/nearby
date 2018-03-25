@@ -1,6 +1,5 @@
 (ns nearby.client.ws
   (:require
-   [nearby.client.db :as db]
    [clojure.string :as string]
    [nearby.event-source :as es]
    [cljs.reader :as edn]
@@ -11,12 +10,7 @@
 (def *ws-socket      (atom nil))
 
 (defn on-message-impl [message-obj]
-  (let [data (edn/read-string (.-data message-obj))]
-    (when (= (:event/action data) :sync-user)
-      (when-not @*set-client?
-        (reset! *set-client? true)
-        (reset! *ws-client-uuid (:client/client-uuid data))))
-    (es/dispatch! data)))
+  )
 
 (defn handle-error [e]
   (prn "[ws] Socket error! " e))
@@ -36,20 +30,14 @@
   (if-let [nav (aget js/window "navigator")]
     (.getCurrentPosition (.-geolocation nav)
                          (fn [res]
-                           (prn "[ws] Got navigator position")
-                           (es/dispatch! {:event/action :set-app-status
-                                          :status/value :status/gelocation-loaded})
-                           (setup-fn {:lng (.-longitude (.-coords res))
+                           (prn "[ws] Got navigator position"
+                            {:lng (.-longitude (.-coords res))
                                       :lat (.-latitude (.-coords res))})
-                           (es/dispatch! {:event/action :set-app-status
-                                          :status/value :status/loaded})))
+                                      ))
     (prn "[ws] No navigator present")))
 
 (defn heartbeat [socket]
-  (when-let [uuid @*ws-client-uuid] ;; only heartbeat once we've got a client
-    (.send socket (pr-str {:es/action             :heartbeat
-                           :heartbeat/client-uuid uuid
-                           :heartbeat/ts          (time/date)}))))
+  )
 
 (def HEARTBEAT-MS (* 1000 30)) ;; every 30s
 
@@ -61,8 +49,7 @@
   (set! (.-onerror socket)   handle-error)
   (set! (.-onclose socket)   on-close)
   (time/run-periodically (partial heartbeat socket) HEARTBEAT-MS)
-  (es/dispatch! {:event/action :set-app-status
-                 :status/value :status/ws-loaded}))
+  )
 
 (defn setup! [ws-uri {:keys [lng lat]}]
   (let [url  (ws-url ws-uri lng lat)
