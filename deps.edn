@@ -4,6 +4,10 @@
          org.immutant/web           {:mvn/version "2.1.10"}
          ring/ring-core             {:mvn/version "1.6.3"}
          compojure                  {:mvn/version "1.6.0"}
+         com.datomic/datomic-free   {:mvn/version "0.9.5697"
+                                     :exclusions
+                                     [org.slf4j/slf4j-log4j12
+                                      org.slf4j/slf4j-nop]}
          ;; client
          rum                        {:mvn/version "0.11.1"}
          cljsjs/react               {:mvn/version "16.2.0-3"}
@@ -20,4 +24,4 @@
                           cider/cider-nrepl           {:mvn/version "0.16.0"}
                           thheller/shadow-cljs        {:mvn/version "2.1.25"}
                           refactor-nrepl              {:mvn/version "2.3.1"}
-                          binaryage/devtools {:mvn/version "0.9.9"}}}}}
+                          binaryage/devtools          {:mvn/version "0.9.9"}}}}}

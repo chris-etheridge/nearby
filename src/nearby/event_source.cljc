@@ -6,12 +6,12 @@
 (defonce *state (atom nil))
 
 (defn new-state [db loop]
-  {:es/db               db
-   :es/loop             loop
-   :es/start            (time/date)
-   :es/events           []
-   :es/confirmed-events []
-   :es/failed-events    []})
+  {::db               db
+   ::loop             loop
+   ::started-at       (time/date)
+   ::events           []
+   ::confirmed-events []
+   ::failed-events    []})
 
 (defn dispatch! [event]
   (->> (merge event {:event/uuid          (util/new-uuid)

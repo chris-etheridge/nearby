@@ -43,18 +43,3 @@
 (defn in-kilometers [coord1 coord2]
   (/ (in-meters coord1 coord2)
      10000))
-
-(comment
-
-  ;; = 5897658.289
-
-  (let [p1 [-0.116773, 51.510357]
-        p2 [-77.009003, 38.889931]]
-    #_(calculate p1 p2)
-    (in-kilometers p1 p2))
-
-
-
-  (Math/sqrt -1.2929723318171586)
-
-  )

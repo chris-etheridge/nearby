@@ -4,7 +4,7 @@
  :builds {:dev {:output-dir "resources/public/js"
                 :asset-path "/public/js"
                 :target     :browser
-                :modules    {:main {:entries [nearby.core]}}
+                :modules    {:main {:entries [nearby.client]}}
                 :devtools {:preloads [devtools.preload]
                            :after-load nearby.core/reload!
                            :watch-dir "public"}}
@@ -12,4 +12,4 @@
           :app {:output-dir "target/"
                 :asset-path "."
                 :target     :browser
-                :modules    {:main {:entries [nearby.core]}}}}}
+                :modules    {:main {:entries [nearby.client]}}}}}

@@ -1,4 +1,4 @@
-(ns nearby.core
+(ns nearby.client
   (:require
    [rum.core :as rum]
    [nearby.client.ws :as client.ws]
@@ -13,4 +13,4 @@
 (enable-console-print!)
 
 (defn ^:export start! []
-  )
+  (client.app/start!))

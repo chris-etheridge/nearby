@@ -22,7 +22,7 @@
 
 (defn should-log? [ns level]
   (= level
-     (get *log-levels* (:name ns) :info)))
+     (get *log-levels* ns :info)))
 
 (defmacro log [level & args]
   (when (should-log? (cljc-ns &env) level)

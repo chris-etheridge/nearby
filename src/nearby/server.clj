@@ -1,15 +1,18 @@
 (ns nearby.server
   (:gen-class)
   (:require
+   [nearby.db :as db]
    [clojure.java.io :as io]
    [clojure.string :as str]
-   [clojure.tools.logging :as logging]
+   [nearby.logging :as logging]
    [compojure.core :as cj]
    [compojure.route :as route]
    [immutant.web :as web]
    [nearby.server.ws :as server.ws]
+   [nearby.fixtures :as fixtures]
    [nearby.util.transit :as transit]
-   [ring.middleware.params :as middleware.params]))
+   [ring.middleware.params :as middleware.params]
+   [datomic.api :as d]))
 
 (defonce *web-server (atom nil))
 
@@ -24,14 +27,25 @@
                  (slurp)
                  (render-index request))})
 
+(defn wrap-with-env [handler]
+  (let [db-env (db/start-system!)]
+    (fn
+      ([req]
+       (handler (assoc req :nearby/env db-env)))
+      ([request respond raise]
+       (handler (assoc request :nearby/env db-env)
+                #(respond %) raise)))))
+
 (def web-app
   (-> (cj/routes
-       (cj/GET "/" [_] index)
+       (cj/GET "/" request (index request))
        (route/files "/public" {:root "resources/public"})
-       (cj/GET "/ws" [_] server.ws/handler))
-      middleware.params/wrap-params))
+       (cj/GET "/ws" request (server.ws/handler request)))
+      middleware.params/wrap-params
+      wrap-with-env))
 
 (defn start! [port]
+  (fixtures/install-fixtures!)
   (if @*web-server
     (logging/info "[server] Server already running")
     (let [port (or port 8080)]
@@ -64,5 +78,5 @@
     (restart! 8080))
   (stop!)
   (start! 8080)
-  
+
   )
